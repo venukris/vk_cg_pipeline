@@ -1,0 +1,125 @@
+{
+  "data": {
+    "PROJECT:tintin/SEQUENCE:sq100/SHOT:s10/OBJECT_TYPE:char/OBJECT:david/ASSET:anim_export": {
+      "type": "File",
+      "versions": {
+        "1": {
+          "contents": [
+            "/project/sq100/s10/char/david/anim_export/david1_body.mc",
+            "/project/sq100/s10/char/david/anim_export/david1_face.mc"
+          ],
+          "dependencies": [
+            [
+              "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:rig",
+              2
+            ],
+            [
+              "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:anim_texture",
+              1
+            ]
+          ]
+        },
+        "2": {
+          "contents": [
+            "/project/sq100/s10/char/david/anim_export/david4_body.mc",
+            "/project/sq100/s10/char/david/anim_export/david4_face.mc"
+          ],
+          "dependencies": [
+            [
+              "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:rig",
+              3
+            ],
+            [
+              "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:anim_texture",
+              2
+            ]
+          ]
+        }
+      }
+    },
+    "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:rig": {
+      "type": "File",
+      "versions": {
+        "1": {
+          "contents": [
+            "/project/library/characters/david/rig/david33.rig"
+          ],
+          "dependencies": [
+            [
+              "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:model",
+              1
+            ]
+          ]
+        },
+        "2": {
+          "contents": [
+            "/project/library/characters/david/rig/david41.rig"
+          ],
+          "dependencies": [
+            [
+              "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:model",
+              2
+            ]
+          ]
+        },
+        "3": {
+          "contents": [
+            "/project/library/characters/david/rig/david55.rig"
+          ],
+          "dependencies": [
+            [
+              "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:model",
+              2
+            ]
+          ]
+        }
+      }
+    },
+    "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:anim_texture": {
+      "type": "File",
+      "versions": {
+        "1": {
+          "contents": [
+            "/project/library/characters/david/texture/david15_diff.png",
+            "/project/library/characters/david/texture/david15_spec.png",
+            "/project/library/characters/david/texture/david15_norm.png"
+          ],
+          "dependencies": [
+            [
+              "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:model",
+              1
+            ]
+          ]
+        },
+        "2": {
+          "contents": [
+            "/project/library/characters/david/texture/david34_diff.png",
+            "/project/library/characters/david/texture/david34_spec.png",
+            "/project/library/characters/david/texture/david34_norm.png"
+          ],
+          "dependencies": [
+            [
+              "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:model",
+              2
+            ]
+          ]
+        }
+      }
+    },
+    "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:model": {
+      "type": "File",
+      "versions": {
+        "1": {
+          "contents": [
+            "/project/library/characters/david/model/david11.mdl"
+          ]
+        },
+        "2": {
+          "contents": [
+            "/project/library/characters/david/model/david24.mdl"
+          ]
+        }
+      }
+    }
+  }
+}
