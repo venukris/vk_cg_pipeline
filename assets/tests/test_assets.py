@@ -23,6 +23,7 @@ class AssetsTestCase(unittest.TestCase):
         path = "PROJECT:tintin/SEQUENCE:sq100/SHOT:s10/OBJECT_TYPE:char/OBJECT:david/ASSET:anim_export"
         self.existing_slot = slot.Slot(path=path,
                                        type=constants.CONTENT_TYPE.File)
+        Store.load_data(TEST_DATA_FILE)
 
     def test_create_asset_new_slot(self):
         asset_ = asset.Asset(self.new_slot)
@@ -32,7 +33,6 @@ class AssetsTestCase(unittest.TestCase):
         self.assertEqual(asset_.version(1), None)
 
     def test_create_asset_existing_slot(self):
-        Store.load_data(TEST_DATA_FILE)
         asset_ = asset.Asset(self.existing_slot)
         self.assertEqual(asset_.slot(), str(self.existing_slot))
         self.assertEqual(asset_.type(), constants.CONTENT_TYPE.File.key)
@@ -41,6 +41,15 @@ class AssetsTestCase(unittest.TestCase):
                          ['/project/sq100/s10/char/david/anim_export/david1_body.mc',
                           '/project/sq100/s10/char/david/anim_export/david1_face.mc'])
 
+    def test_load_dependencies(self):
+        asset_ = asset.Asset(self.existing_slot)
+        asset_version = asset_.version(1)
+        self.assertEqual(len(asset_version.dependencies()), 2)
+
+        asset_version_dep0 = asset_version.dependencies()[0]
+        self.assertEqual(len(asset_version_dep0.dependencies()), 1)
+        self.assertEqual(asset_version_dep0.dependencies()[0].slot(),
+                         "PROJECT:tintin/GLOBAL_CATEGORY:characters/GLOBAL_OBJECT:david/ASSET:model")
 
 if __name__ == "__main__":
     unittest.main()

@@ -44,5 +44,17 @@ class Container(object):
     def load_contents(self, slot, version):
         raise NotImplementedError
 
+    def __str__(self):
+        return '{class_}:{_type}'.format(
+            class_=type(self).__name__,
+            **vars(self)
+        )
+
+    def __repr__(self):
+        return '{class_}()'.format(
+            class_=type(self).__name__,
+            **vars(self)
+        )
+
 
 

@@ -35,7 +35,18 @@ class Store(object):
     def get_versions_data(cls, slot):
         slot_data = cls.get_entries(slot)
         if slot_data is not None:
-            return slot_data.get('versions', None)
+            versions_data = slot_data.get('versions', None)
+            if versions_data is not None:
+                # Json format only allows string key values.
+                # Since versions are integers but stored as keys
+                # in json to work as keys, we convert them to
+                # integer here before its used by client code.
+                new_versions_data = {}
+                for key in versions_data:
+                    new_versions_data[int(key)] = versions_data[key]
+                versions_data = new_versions_data
+            return versions_data
+
 
     @classmethod
     def get_version_data(cls, slot, version):
