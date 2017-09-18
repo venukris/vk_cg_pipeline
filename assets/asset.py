@@ -26,11 +26,13 @@
                                  character rig assets + etc..
 
 """
-
+import logging
 from database.store import Store
-from assets.exceptions import DataIntegrityException
+from assets.exceptions import DataMismatchException, MissingDBDataException
 from assets.container import Container
 import constants
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Asset(object):
@@ -64,6 +66,9 @@ class Asset(object):
         )
         return None if len(filtered_versions) == 0 else filtered_versions[0]
 
+    def latest_version(self):
+        return self._latest_version
+
     def add_version(self):
         self._versions.append(
             AssetVersion(
@@ -76,11 +81,18 @@ class Asset(object):
 
     def _load_versions(self):
         if Store.get_entries(self.slot()) is None:
+            logging.warning("No versions found for asset at {}".format(self.slot()))
             return
         asset_type = Store.get_type_data(self.slot())
 
         if asset_type != self.type():
-            raise DataIntegrityException
+            logging.error("Mismatch in asset type between Asset object"
+                          " and Asset entry in database:\n"
+                          "\tSlot -> {}\n"
+                          "\tobject asset type   -> {}\n"
+                          "\tdatabase asset type -> {}"
+                          .format(self.slot(), self.type(), asset_type))
+            raise DataMismatchException
 
         for version in Store.get_versions_data(self.slot()):
             self._versions.append(
@@ -92,6 +104,12 @@ class Asset(object):
             )
         self._latest_version = 0 if len(self._versions) == 0 \
             else self._versions[-1].version()
+        logging.debug("Loaded {} versions for {} (latest:v{})"
+                      .format(len(self.versions()),
+                              self.slot(),
+                              self.latest_version()
+                              )
+                      )
 
     def __eq__(self, other):
         if isinstance(other, Asset):
@@ -142,11 +160,16 @@ class AssetVersion(object):
 
     def dependencies(self):
         if not self._dependencies_loaded:
+            logging.debug("Loading dependencies for {}->v{}.."
+                          .format(self.slot(), self.version()))
             self._load_dependencies()
             self._dependencies_loaded = True
+            logging.debug("Loaded {} dependencies"
+                          .format(len(self.dependencies())))
         return self._dependencies
 
     def add_dependency(self, dependency):
+        # TODO : implement AssetVersion.add_dependency()
         pass
 
     def _load_dependencies(self):
@@ -156,20 +179,31 @@ class AssetVersion(object):
 
     def _load_container(self):
         version_data = Store.get_version_data(self.slot(), self.version())
-        if not version_data:
+        if version_data is None:
+            logging.warning("Unable to load container for {}->v{}"
+                            " as the version data is missing"
+                            .format(self.slot(), self.version()))
             return
+
         content_type = Store.get_type_data(self.slot())
+        if content_type is None:
+            logging.error("Unable to load container for {}->v{}"
+                          "as the content type is missing"
+                          .format(self.slot(), self.version()))
+            raise MissingDBDataException
+
         self._container = container_factory(content_type)
         self._container.load_contents(self.slot(), self.version())
 
     def __eq__(self, other):
         if isinstance(other, AssetVersion):
-            return self.slot() == other.slot() and self.version() == other.version()
+            return self.slot() == other.slot() and \
+                   self.version() == other.version()
         else:
             raise TypeError
 
     def __str__(self):
-        return '{class_}:{_slot}.v{_version}'.format(
+        return '{class_}:{_slot}->v{_version}'.format(
             class_=type(self).__name__,
             **vars(self)
         )
@@ -187,7 +221,8 @@ class FileContainer(Container):
         self._type = constants.CONTENT_TYPE.File.key
 
     def load_contents(self, slot, version):
-        self.set_contents(Store.get_content_data(slot, version))
+        with CheckZeroContents(self, slot, version):
+            self.set_contents(Store.get_content_data(slot, version))
 
     def _is_valid(self, content):
         return isinstance(content, str) or isinstance(content, unicode)
@@ -202,8 +237,9 @@ class AssetContainer(Container):
         self._type = constants.CONTENT_TYPE.Asset.key
 
     def load_contents(self, slot, version):
-        for item in Store.get_content_data(slot, version):
-            self.add_content(item)
+        with CheckZeroContents(self, slot, version):
+            for item in Store.get_content_data(slot, version):
+                self.add_content(item)
 
     def _is_valid(self, content):
         return isinstance(content, Asset)
@@ -214,6 +250,21 @@ class AssetContainer(Container):
                    x.version() == content.version()
 
         return filter(filter_func, self.contents())
+
+
+class CheckZeroContents(object):
+    def __init__(self, container, slot, version):
+        self._container = container
+        self._slot = slot
+        self._version = version
+
+    def __enter__(self):
+        return self._container
+
+    def __exit__(self, type, value, traceback):
+        if len(self._container.contents()) == 0:
+            logging.warning("No contents found in {}->{}"
+                            .format(self._slot, self._version))
 
 
 def container_factory(type_):

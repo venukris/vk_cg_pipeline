@@ -1,3 +1,8 @@
-class DataIntegrityException(Exception):
+class DataMismatchException(Exception):
     def __init__(self):
-        super(DataIntegrityException, self).__init__()
+        super(DataMismatchException, self).__init__()
+
+
+class MissingDBDataException(Exception):
+    def __init__(self):
+        super(MissingDBDataException, self).__init__()
