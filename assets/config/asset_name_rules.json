@@ -1,0 +1,10 @@
+{
+  "shot-asset" : {
+    "regex"   : "PROJECT:.+\/SEQUENCE:.+\/SHOT:.+\/OBJECT_TYPE:.+\/OBJECT:.+\/ASSET:.+",
+    "tokens"  : ["SEQUENCE", "SEQUENCE","OBJECT_TYPE", "OBJECT", "ASSET"]
+  },
+  "global-asset" : {
+    "regex"  : "PROJECT:.+\/GLOBALOBJECT_TYPE:.+\/GLOBALOBJECT:.+\/ASSET:.+",
+    "tokens" : ["GLOBALOBJECT_TYPE", "GLOBALOBJECT", "ASSET"]
+  }
+}
