@@ -30,6 +30,7 @@
 from database.store import Store
 from assets.exceptions import DataMismatchException, MissingDBDataException
 from assets.container import Container
+from assets.slot import Slot
 import utils
 import constants
 import logging
@@ -196,9 +197,12 @@ class AssetVersion(AssetBase):
 
     def _load_dependencies(self):
         for dep in Store.get_dependency_data(self.slot(), self.version()):
-            # TODO: Create Asset object and use it to create AssetVersion
-            self._dependencies.append(AssetVersion(slot=dep[0],
-                                                   version=dep[1]))
+            type_ = Store.get_type_data(dep[0])
+            slot_ = Slot(type=type_, path=dep[0])
+            asset_ = Asset(slot=slot_)
+            for asset_version in asset_.versions():
+                if asset_version.version() == dep[1]:
+                    self._dependencies.append(asset_version)
 
     def _load_container(self):
         version_data = Store.get_version_data(self.slot(), self.version())

@@ -23,7 +23,7 @@ class AssetsTestCase(unittest.TestCase):
                                   type=constants.CONTENT_TYPE.File)
 
         path = "PROJECT:tintin/SEQUENCE:sq100/SHOT:s10/OBJECT_TYPE:char/" \
-               "OBJECT:david/ASSET:anim_export"
+               "OBJECT:david/ASSET:animexport"
         self.existing_slot = slot.Slot(path=path,
                                        type=constants.CONTENT_TYPE.File)
         Store.load_data(TEST_DATA_FILE)
@@ -48,14 +48,14 @@ class AssetsTestCase(unittest.TestCase):
     def test_load_dependencies(self):
         asset_ = asset.Asset(self.existing_slot)
         asset_version = asset_.version(1)
-        self.assertEqual(asset_version.name(), 'sq100_sq100_char_david_anim_v1')
+        self.assertEqual(asset_version.name(), 'sq100_s10_char_david_animexport_v1')
         self.assertEqual(len(asset_version.dependencies()), 2)
 
         asset_version_dep0 = asset_version.dependencies()[0]
         self.assertEqual(len(asset_version_dep0.dependencies()), 1)
         self.assertEqual(asset_version_dep0.dependencies()[0].slot(),
                          "PROJECT:tintin/GLOBALOBJECT_TYPE:characters/"
-                         "GLOBALOBJECT:david/ASSET:model")
+                         + "GLOBALOBJECT:david/ASSET:model")
 
 if __name__ == "__main__":
     import logging
