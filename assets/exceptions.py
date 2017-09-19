@@ -6,3 +6,8 @@ class DataMismatchException(Exception):
 class MissingDBDataException(Exception):
     def __init__(self):
         super(MissingDBDataException, self).__init__()
+
+
+class TokenNotFoundException(Exception):
+    def __init__(self):
+        super(TokenNotFoundException, self).__init__()

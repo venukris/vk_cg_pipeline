@@ -32,8 +32,8 @@ from assets.exceptions import DataMismatchException, MissingDBDataException
 from assets.container import Container
 import utils
 import constants
-
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -98,17 +98,17 @@ class Asset(AssetBase):
 
     def _load_versions(self):
         if Store.get_entries(self.slot()) is None:
-            logger.warning("No versions found {}".format(self.name()))
+            logger.warning("No versions found for {}".format(self.name()))
             return
         asset_type = Store.get_type_data(self.slot())
 
         if asset_type != self.type():
             logger.error("Mismatch in asset type between Asset object"
-                          " and Asset entry in database:\n"
-                          "\tslot -> {}\n"
-                          "\tobject asset type   -> {}\n"
-                          "\tdatabase asset type -> {}"
-                          .format(self.slot(), self.type(), asset_type))
+                         " and Asset entry in database:\n"
+                         "\tslot -> {}\n"
+                         "\tobject asset type   -> {}\n"
+                         "\tdatabase asset type -> {}"
+                         .format(self.slot(), self.type(), asset_type))
             raise DataMismatchException
 
         for version in Store.get_versions_data(self.slot()):
@@ -122,11 +122,11 @@ class Asset(AssetBase):
         self._latest_version = 0 if len(self._versions) == 0 \
             else self._versions[-1].version()
         logger.debug("Loaded {} versions for {} (latest:v{})"
-                      .format(len(self.versions()),
-                              self.name(),
-                              self.latest_version()
-                              )
-                      )
+                     .format(len(self.versions()),
+                             self.name(),
+                             self.latest_version()
+                             )
+                     )
 
     def __eq__(self, other):
         if isinstance(other, Asset):
@@ -183,11 +183,11 @@ class AssetVersion(AssetBase):
     def dependencies(self):
         if not self._dependencies_loaded:
             logger.debug("Loading dependencies for {}.."
-                          .format(self.name()))
+                         .format(self.name()))
             self._load_dependencies()
             self._dependencies_loaded = True
             logger.debug("Loaded {} dependencies"
-                          .format(len(self.dependencies())))
+                         .format(len(self.dependencies())))
         return self._dependencies
 
     def add_dependency(self, dependency):
@@ -204,15 +204,15 @@ class AssetVersion(AssetBase):
         version_data = Store.get_version_data(self.slot(), self.version())
         if version_data is None:
             logger.warning("Unable to load container for {}"
-                            " as the version data is missing"
-                            .format(self.name()))
+                           " as the version data is missing"
+                           .format(self.name()))
             return
 
         content_type = Store.get_type_data(self.slot())
         if content_type is None:
             logger.error("Unable to load container for {}"
-                          "as the content type is missing"
-                          .format(self.name()))
+                         "as the content type is missing"
+                         .format(self.name()))
             raise MissingDBDataException
 
         self._container = container_factory(content_type)
@@ -287,7 +287,7 @@ class CheckZeroContents(object):
     def __exit__(self, type, value, traceback):
         if len(self._container.contents()) == 0:
             logger.warning("No contents found in {}->{}"
-                            .format(self._slot, self._version))
+                           .format(self._slot, self._version))
 
 
 def container_factory(type_):
