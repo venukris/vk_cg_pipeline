@@ -11,3 +11,8 @@ class MissingDBDataException(Exception):
 class TokenNotFoundException(Exception):
     def __init__(self):
         super(TokenNotFoundException, self).__init__()
+
+
+class AssetVersionInitializationException(Exception):
+    def __init__(self):
+        super(AssetVersionInitializationException, self).__init__()

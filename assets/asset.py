@@ -28,7 +28,8 @@
 """
 
 from database.store import Store
-from assets.exceptions import DataMismatchException, MissingDBDataException
+from assets.exceptions import DataMismatchException, \
+                              AssetVersionInitializationException
 from assets.container import Container
 from assets.slot import Slot
 import utils
@@ -55,11 +56,11 @@ class AssetBase(object):
 class Asset(AssetBase):
     def __init__(self, slot, name=None):
         """
-            @:param slot: instance of slot.Slot object representing the place
-                          or the location of the asset. Location does not
-                          refer to the location in the file system. It is a
-                          uniquely identifiable path in the data structure
-                          established for production.
+        @:param slot: instance of slot.Slot object representing the place
+                      or the location of the asset. Location does not
+                      refer to the location in the file system. It is a
+                      uniquely identifiable path in the data structure
+                      established for production.
         """
         super(Asset, self).__init__(name)
         self._slot = slot
@@ -71,7 +72,7 @@ class Asset(AssetBase):
     def slot(self):
         return self._slot.id()
 
-    def type(self):
+    def slot_type(self):
         return str(self._slot.type())
 
     def versions(self):
@@ -87,12 +88,12 @@ class Asset(AssetBase):
     def latest_version(self):
         return self._latest_version
 
-    def add_version(self):
+    def add_version(self, contents):
         self._versions.append(
             AssetVersion(
                 asset=self,
                 version=self._latest_version + 1,
-                slot=self.slot()
+                contents=contents
             )
         )
         self._latest_version = self._latest_version + 1
@@ -103,21 +104,21 @@ class Asset(AssetBase):
             return
         asset_type = Store.get_type_data(self.slot())
 
-        if asset_type != self.type():
+        if asset_type != self.slot_type():
             logger.error("Mismatch in asset type between Asset object"
                          " and Asset entry in database:\n"
                          "\tslot -> {}\n"
                          "\tobject asset type   -> {}\n"
                          "\tdatabase asset type -> {}"
-                         .format(self.slot(), self.type(), asset_type))
+                         .format(self.slot(), self.slot_type(), asset_type))
             raise DataMismatchException
 
+        logger.info(self)
         for version in Store.get_versions_data(self.slot()):
             self._versions.append(
                 AssetVersion(
                     asset=self,
                     version=version,
-                    slot=self.slot()
                 )
             )
         self._latest_version = 0 if len(self._versions) == 0 \
@@ -136,9 +137,9 @@ class Asset(AssetBase):
             raise TypeError
 
     def __str__(self):
-        return '{class_}:{_name}'.format(
+        return '{class_}:{name}'.format(
             class_=type(self).__name__,
-            **vars(self)
+            name=self.name()
         )
 
     def __repr__(self):
@@ -149,26 +150,24 @@ class Asset(AssetBase):
 
 
 class AssetVersion(AssetBase):
-    def __init__(self, version, slot=None, asset=None, name=None):
+    def __init__(self, asset, version, contents=None, name=None):
         super(AssetVersion, self).__init__(name)
-        if slot is None and asset is None:
-            raise ValueError
         self._asset = asset
         self._version = version
         self._dependencies = []
         self._dependencies_loaded = False
         self._container = None
-        self._slot = slot if slot is not None else asset.slot()
-        self._load_container()
+
+        self._initialize_container(contents)
 
     def slot(self):
-        return self._slot
+        return self._asset.slot()
 
     def version(self):
         return self._version
 
-    def set_version(self, version):
-        self._version = version
+    def slot_type(self):
+        return self._asset.slot_type()
 
     def name(self):
         super(AssetVersion, self).name()
@@ -179,48 +178,45 @@ class AssetVersion(AssetBase):
         return None if not self._container else self._container.contents()
 
     def asset(self):
-        return self._asset if self._asset else Asset(self._slot)
+        return self._asset
 
     def dependencies(self):
         if not self._dependencies_loaded:
-            logger.debug("Loading dependencies for {}.."
-                         .format(self.name()))
+            logger.debug("Loading dependencies for {}..".format(self.name()))
             self._load_dependencies()
             self._dependencies_loaded = True
-            logger.debug("Loaded {} dependencies"
-                         .format(len(self.dependencies())))
+            logger.debug("Loaded {} dependencies".format(len(self.dependencies())))
         return self._dependencies
 
-    def add_dependency(self, dependency):
-        # TODO : implement AssetVersion.add_dependency()
-        pass
+    def add_dependency(self, asset_version):
+        for dep in self._dependencies:
+            if dep == asset_version:
+                return
+        self._dependencies.append(asset_version)
+
+    def _initialize_container(self, contents):
+        self._container = container_factory(self.slot_type())
+        if self._is_new_version():
+            if not contents:
+                logger.error("Cannot create an AssetVersion: no contents passed.")
+                raise AssetVersionInitializationException
+            logger.debug("Setting contents on new asset version..")
+            self._container.set_contents(contents)
+        else:
+            logging.debug("Loading contents on existing asset version..")
+            self._container.load_contents(self.slot(), self.version())
 
     def _load_dependencies(self):
         for dep in Store.get_dependency_data(self.slot(), self.version()):
-            type_ = Store.get_type_data(dep[0])
-            slot_ = Slot(type=type_, path=dep[0])
+            stype_ = Store.get_type_data(dep[0])
+            slot_ = Slot(type=stype_, path=dep[0])
             asset_ = Asset(slot=slot_)
             for asset_version in asset_.versions():
                 if asset_version.version() == dep[1]:
                     self._dependencies.append(asset_version)
 
-    def _load_container(self):
-        version_data = Store.get_version_data(self.slot(), self.version())
-        if version_data is None:
-            logger.warning("Unable to load container for {}"
-                           " as the version data is missing"
-                           .format(self.name()))
-            return
-
-        content_type = Store.get_type_data(self.slot())
-        if content_type is None:
-            logger.error("Unable to load container for {}"
-                         "as the content type is missing"
-                         .format(self.name()))
-            raise MissingDBDataException
-
-        self._container = container_factory(content_type)
-        self._container.load_contents(self.slot(), self.version())
+    def _is_new_version(self):
+        return Store.get_version_data(self.slot(), self.version()) is None
 
     def __eq__(self, other):
         if isinstance(other, AssetVersion):
@@ -230,9 +226,9 @@ class AssetVersion(AssetBase):
             raise TypeError
 
     def __str__(self):
-        return '{class_}:{_name}'.format(
+        return '{class_}:{name}'.format(
             class_=type(self).__name__,
-            **vars(self)
+            name=self.name()
         )
 
     def __repr__(self):
@@ -269,7 +265,7 @@ class AssetContainer(Container):
                 self.add_content(item)
 
     def _is_valid(self, content):
-        return isinstance(content, Asset)
+        return isinstance(content, AssetVersion)
 
     def _find_content(self, content):
         def filter_func(x):
@@ -288,7 +284,7 @@ class CheckZeroContents(object):
     def __enter__(self):
         return self._container
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type_, value, traceback):
         if len(self._container.contents()) == 0:
             logger.warning("No contents found in {}->{}"
                            .format(self._slot, self._version))
@@ -296,7 +292,7 @@ class CheckZeroContents(object):
 
 def container_factory(type_):
     """
-    Factory method to create containers
+    Factory method to create containers.
     :param type_: Type of container to create.
     :return: Concrete container object
     """
@@ -308,12 +304,11 @@ def container_factory(type_):
 
 def name_generator_factory(item):
     """
-    Factory method to name generators.
-    For now there is only one way to generate
-    names. Potentially there could be many different
-    ways to do that based on the "item"
+    Factory method to create name generators.
+    For now there is only one way to generate names. Potentially there
+    could be many different ways to do that based on the given "item".
     :param item: Specifies criteria to create a generator
-    :return:  Name generator object
+    :return: Name generator object
     """
     if isinstance(item, Asset) or isinstance(item, AssetVersion):
         return utils.AssetNameGenerator(item)
