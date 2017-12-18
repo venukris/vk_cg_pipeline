@@ -1,7 +1,6 @@
 import unittest
-from assets import asset, slot
-from assets import constants
-from database.store import Store
+from VK.pipeline.assets import asset, constants, slot
+from VK.database.store import Store
 
 TEST_DATA_FILE = "/Users/venuk/develop/pipeline/assets/tests/test_data.json"
 
@@ -31,7 +30,7 @@ class AssetsTestCase(unittest.TestCase):
     def test_create_asset_new_slot(self):
         asset_ = asset.Asset(self.new_slot)
         self.assertEqual(asset_.slot(), str(self.new_slot))
-        self.assertEqual(asset_.slot_type(), constants.CONTENT_TYPE.File.key)
+        self.assertEqual(asset_.slot_type(), constants.CONTENT_TYPE.File)
         self.assertEqual(asset_.versions(), [])
         self.assertEqual(asset_.version(1), None)
         self.assertEqual(asset_.name(), 'characters_brad_rig')
@@ -41,7 +40,7 @@ class AssetsTestCase(unittest.TestCase):
         contents = ['/project/sq100/s10/char/david/anim_export/david1_body.mc',
                     '/project/sq100/s10/char/david/anim_export/david1_face.mc']
         self.assertEqual(asset_.slot(), str(self.existing_slot))
-        self.assertEqual(asset_.slot_type(), constants.CONTENT_TYPE.File.key)
+        self.assertEqual(asset_.slot_type(), constants.CONTENT_TYPE.File)
         self.assertEqual(len(asset_.versions()), 2)
         self.assertEqual(asset_.version(1).contents(), contents)
 
@@ -65,7 +64,7 @@ class AssetsTestCase(unittest.TestCase):
 
         asset_version = asset_.version(1)
         self.assertEqual(asset_version.slot(), str(self.new_slot))
-        self.assertEqual(asset_version.slot_type(), constants.CONTENT_TYPE.File.key)
+        self.assertEqual(asset_version.slot_type(), constants.CONTENT_TYPE.File)
         self.assertEqual(asset_version.contents(), contents)
 
 

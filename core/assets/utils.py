@@ -6,7 +6,7 @@ import logging
 from .exceptions import TokenNotFoundException
 
 logger = logging.getLogger(__name__)
-NAME_RULE_CONFIG = os.path.abspath("assets/config/asset_name_rules.json")
+NAME_RULE_CONFIG = os.path.abspath("../config/asset_name_rules.json")
 
 
 class NameGenerator(object):
@@ -77,3 +77,7 @@ def slot_parser(slot, token):
         return m.groups()[0]
     logger.warning("Token {} not found in {}".format(token, slot))
     raise TokenNotFoundException
+
+
+
+

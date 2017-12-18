@@ -27,11 +27,11 @@
 
 """
 
-from database.store import Store
-from assets.exceptions import DataMismatchException, \
+from VK.database.store import Store
+from VK.pipeline.assets.exceptions import DataMismatchException, \
                               AssetVersionInitializationException
-from assets.container import Container
-from assets.slot import Slot
+from VK.pipeline.assets.container import Container
+from VK.pipeline.assets.slot import Slot
 import utils
 import constants
 import logging
@@ -241,7 +241,7 @@ class AssetVersion(AssetBase):
 class FileContainer(Container):
     def __init__(self):
         super(FileContainer, self).__init__()
-        self._type = constants.CONTENT_TYPE.File.key
+        self._type = constants.CONTENT_TYPE.File
 
     def load_contents(self, slot, version):
         with CheckZeroContents(self, slot, version):
@@ -257,7 +257,7 @@ class FileContainer(Container):
 class AssetContainer(Container):
     def __init__(self):
         super(AssetContainer, self).__init__()
-        self._type = constants.CONTENT_TYPE.Asset.key
+        self._type = constants.CONTENT_TYPE.Asset
 
     def load_contents(self, slot, version):
         with CheckZeroContents(self, slot, version):
@@ -296,9 +296,9 @@ def container_factory(type_):
     :param type_: Type of container to create.
     :return: Concrete container object
     """
-    if type_ == constants.CONTENT_TYPE.File.key:
+    if type_ == constants.CONTENT_TYPE.File:
         return FileContainer()
-    if type_ == constants.CONTENT_TYPE.Asset.key:
+    if type_ == constants.CONTENT_TYPE.Asset:
         return AssetContainer()
 
 
