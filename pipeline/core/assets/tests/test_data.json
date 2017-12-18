@@ -1,6 +1,6 @@
 {
   "data": {
-    "PROJECT:tintin/SEQUENCE:sq100/SHOT:s10/OBJECT_TYPE:char/OBJECT:david/ASSET:anim_export": {
+    "PROJECT:tintin/SEQUENCE:sq100/SHOT:s10/OBJECT_TYPE:char/OBJECT:david/ASSET:animexport": {
       "type": "File",
       "versions": {
         "1": {
@@ -14,7 +14,7 @@
               2
             ],
             [
-              "PROJECT:tintin/GLOBALOBJECT_TYPE:characters/GLOBALOBJECT:david/ASSET:anim_texture",
+              "PROJECT:tintin/GLOBALOBJECT_TYPE:characters/GLOBALOBJECT:david/ASSET:animtexture",
               1
             ]
           ]
@@ -30,7 +30,7 @@
               3
             ],
             [
-              "PROJECT:tintin/GLOBALOBJECT_TYPE:characters/GLOBALOBJECT:david/ASSET:anim_texture",
+              "PROJECT:tintin/GLOBALOBJECT_TYPE:characters/GLOBALOBJECT:david/ASSET:animtexture",
               2
             ]
           ]
@@ -75,7 +75,7 @@
         }
       }
     },
-    "PROJECT:tintin/GLOBALOBJECT_TYPE:characters/GLOBALOBJECT:david/ASSET:anim_texture": {
+    "PROJECT:tintin/GLOBALOBJECT_TYPE:characters/GLOBALOBJECT:david/ASSET:animtexture": {
       "type": "File",
       "versions": {
         "1": {
