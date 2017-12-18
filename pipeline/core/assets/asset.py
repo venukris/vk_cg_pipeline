@@ -26,15 +26,15 @@
                                  character rig assets + etc..
 
 """
-
-from VK.database.store import Store
-from VK.pipeline.assets.exceptions import DataMismatchException, \
-                              AssetVersionInitializationException
-from VK.pipeline.assets.container import Container
-from VK.pipeline.assets.slot import Slot
 import utils
 import constants
 import logging
+from pipeline.database.store import Store
+from .exceptions import DataMismatchException, \
+                        AssetVersionInitializationException
+from .container import Container
+from .slot import Slot
+
 
 logger = logging.getLogger(__name__)
 

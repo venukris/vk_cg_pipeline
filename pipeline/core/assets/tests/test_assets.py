@@ -1,8 +1,8 @@
 import unittest
-from VK.pipeline.assets import asset, constants, slot
-from VK.database.store import Store
+from pipeline.core.assets import asset, constants, slot
+from pipeline.database.store import Store
 
-TEST_DATA_FILE = "/Users/venuk/develop/pipeline/assets/tests/test_data.json"
+TEST_DATA_FILE = "test_data.json"
 
 
 class SlotTestCase(unittest.TestCase):
