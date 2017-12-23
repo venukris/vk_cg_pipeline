@@ -1,4 +1,4 @@
-import common.utils as cutils
+import VK.common.utils as cutils
 
 
 CONTENT_TYPE = cutils.create_constant(

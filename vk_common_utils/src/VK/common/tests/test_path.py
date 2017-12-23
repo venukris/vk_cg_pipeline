@@ -1,5 +1,5 @@
 import unittest
-from common.path import Path
+from VK.common.path import Path
 
 
 class PathTestCases(unittest.TestCase):

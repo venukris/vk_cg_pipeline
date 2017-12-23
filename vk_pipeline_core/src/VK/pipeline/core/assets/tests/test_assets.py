@@ -1,6 +1,6 @@
 import unittest
-from pipeline.core.assets import asset, constants, slot
-from pipeline.database.store import Store
+from VK.pipeline.core.assets import asset, constants, slot
+from VK.pipeline.database.store import Store
 
 TEST_DATA_FILE = "test_data.json"
 

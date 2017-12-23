@@ -29,7 +29,7 @@
 import utils
 import constants
 import logging
-from pipeline.database.store import Store
+from VK.pipeline.database.store import Store
 from .exceptions import DataMismatchException, \
                         AssetVersionInitializationException
 from .container import Container
